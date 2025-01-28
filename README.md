@@ -1,0 +1,1 @@
+This is (the revival of) Such Life, a top-down 2D sandbox game with a focus on RPG mechanics and dungeon crawling. The player will navigate an unexplored island, braving dungeons and acquiring new gear and mobility options to progress across the island and explore new, more difficult dungeons. WIP but a playable demo will be out by the end of the semester!
