@@ -3,14 +3,15 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using UnityEngine.InputSystem.Android;
 
 
 
 public class DungeonGraph 
 {
-    List<DungeonNode> layout = new List<DungeonNode>(); //finalized layout
-    List<DungeonNode> availableNodes = new List<DungeonNode>(); //nodes that can be added to the graph
-    List<DungeonNode> nodesAwaitingEdges = new List<DungeonNode>(); //nodes that have an entrance edge but are elligible for further branches
+    public List<DungeonNode> layout = new List<DungeonNode>(); //finalized layout
+    private List<DungeonNode> availableNodes = new List<DungeonNode>(); //nodes that can be added to the graph
+    private List<DungeonNode> nodesAwaitingEdges = new List<DungeonNode>(); //nodes that have an entrance edge but are elligible for further branches
     public DungeonGraph(DungeonOptions opts)
     {
         createLayout(opts);
@@ -49,12 +50,29 @@ public class DungeonGraph
         
 
         //finalize branch by creating more nodes until maxdepth is hit
-        //now that main branch has been created, start adding branches to 'nodes awaiting edges' starting from index 0
+        
         for (int i = 1; i < opts.maxDepth; i++)
         {
             nodeCreated = createNewEdge(nodeCreated, opts);
         }
-        printNodes();
+        printNodes(nodesAwaitingEdges);
+        Debug.Log("STARTING BRANCH HAS BEEN PRINTED");
+        //now that main branch has been created, start adding branches to 'nodes awaiting edges' starting from index 0
+        while( nodesAwaitingEdges.Count > 0  && availableNodes.Count > 0)
+        {
+            //branch off of the first node in the list; repeat until no more nodes are awaiting edges or max nodes hit
+            DungeonNode newNode = createNewEdge(nodesAwaitingEdges[0], opts);
+            Debug.Log("NEW NODE CREATED");
+        }
+        Debug.Log(nodesAwaitingEdges.Count);
+        //after maxnodes have been placed, move all nodes awaiting edges into the layout
+        while(nodesAwaitingEdges.Count > 0)
+        {
+            DungeonNode tempNode = nodesAwaitingEdges[0];
+            nodesAwaitingEdges.RemoveAt(0);
+            layout.Add(tempNode);
+        }
+        printNodes(layout);
     }
 
     private DungeonNode createNewEdge(DungeonNode originNode, DungeonOptions opts)
@@ -88,12 +106,33 @@ public class DungeonGraph
         DungeonNode neighborNode = nodeAtIndex(newX, newY);
         if (neighborNode != null )
         {
+            Debug.Log("adding edge btween existing nodes");
             //add an edge between the nodes but do not change available nodes
-            Debug.Log("uh oh");
-            return originNode;
+            Tuple<DungeonNode, string> newEdge = new Tuple<DungeonNode, string>(neighborNode, dir);
+            originNode.edges.Add(newEdge);
+            Tuple<DungeonNode, string> revEdge = new Tuple<DungeonNode, string>(originNode, oppdir);
+            neighborNode.edges.Add(revEdge);
+            //check if either node now has maxedges
+            if(originNode.edges.Count == opts.maxEdges)
+            {
+                nodesAwaitingEdges.Remove(originNode);
+                layout.Add(originNode);
+            }
+            if(neighborNode.edges.Count == opts.maxEdges)
+            {
+                nodesAwaitingEdges.Remove(neighborNode);
+                layout.Add(neighborNode);
+            }
+            return neighborNode;
         } else
         {
             //grab a node from availablenodes, update it, and add an edge between the two
+            //though first check if any nodes are available
+            if (availableNodes.Count <= 0)
+            {
+                //no nodes are available; dont add node
+                return null;
+            }
             DungeonNode newNode = availableNodes[0];
             newNode.depth = originNode.depth + 1;
             newNode.xPos = newX; newNode.yPos = newY;
@@ -101,10 +140,27 @@ public class DungeonGraph
             originNode.edges.Add(newEdge);
             Tuple<DungeonNode, string> revEdge = new Tuple<DungeonNode, string>(originNode, oppdir);
             newNode.edges.Add(revEdge);
-            //move new node from availablenodes to nodes awaiting edges
-            nodesAwaitingEdges.Add(newNode);
-            availableNodes.RemoveAt(0);
-            return nodesAwaitingEdges[nodesAwaitingEdges.Count-1];
+
+            //if origin node now has maxEdges edges, then move it to layout
+            if (originNode.edges.Count == opts.maxEdges)
+            {
+                nodesAwaitingEdges.Remove(originNode);
+                layout.Add(originNode);
+            }
+
+            //if new node has maxEdges edges, then move node to layout instead of nodesawaitingedges - this shouldnt happen unless maxedges is 1
+            if (newNode.edges.Count == opts.maxEdges)
+            {
+                layout.Add(newNode);
+                availableNodes.RemoveAt(0);
+                return layout[layout.Count - 1];
+            } else
+            {
+                nodesAwaitingEdges.Add(newNode);
+                availableNodes.RemoveAt(0);
+                return nodesAwaitingEdges[nodesAwaitingEdges.Count - 1];
+            }
+
         }
     }
     private DungeonNode nodeAtIndex(int inputX, int inputY)
@@ -120,16 +176,16 @@ public class DungeonGraph
         return null;
     }
 
-    private void printNodes()
+    private void printNodes(List<DungeonNode> toPrint)
     {
-        for(int i=0;i<nodesAwaitingEdges.Count;i++)
+        for(int i=0;i<toPrint.Count;i++)
         {
             Debug.Log(i);
             Debug.Log("edges of node");
-            for (int j = 0; j < nodesAwaitingEdges[i].edges.Count; j++)
+            for (int j = 0; j < toPrint[i].edges.Count; j++)
             {
                 
-                Debug.Log(nodesAwaitingEdges[i].edges[j]);
+                Debug.Log(toPrint[i].edges[j]);
             }
             
         }
