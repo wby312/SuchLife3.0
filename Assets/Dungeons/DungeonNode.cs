@@ -11,12 +11,14 @@ public class DungeonNode
     public int xPos;
     public int yPos;
     public int depth;
+    public string type;
     public DungeonNode()
     {
         //default vals
         depth = 0;
         xPos = 0;
         yPos = 0;
+        type = "normal";
         edges = new List<Tuple<DungeonNode, string>>();
     }
 

@@ -179,6 +179,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dungeonTilemap: {fileID: 883490136}
   grassTile: {fileID: 11400000, guid: e88b311d36e01a64ca29e9cc841aa8d8, type: 2}
+  wallTile: {fileID: 11400000, guid: c84603f3002b8574f9f965a5a97d8441, type: 2}
 --- !u!1 &883490133
 GameObject:
   m_ObjectHideFlags: 0
@@ -388,7 +389,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 15
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2

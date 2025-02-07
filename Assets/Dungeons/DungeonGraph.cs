@@ -106,7 +106,12 @@ public class DungeonGraph
         DungeonNode neighborNode = nodeAtIndex(newX, newY);
         if (neighborNode != null )
         {
-            Debug.Log("adding edge btween existing nodes");
+            //before adding edge, check if edge will cause the neighboring node to have more than maxnodes
+            if(neighborNode.edges.Count >= opts.maxEdges)
+            {
+                //if so, then dont add this edge.
+                return neighborNode;
+            }
             //add an edge between the nodes but do not change available nodes
             Tuple<DungeonNode, string> newEdge = new Tuple<DungeonNode, string>(neighborNode, dir);
             originNode.edges.Add(newEdge);
