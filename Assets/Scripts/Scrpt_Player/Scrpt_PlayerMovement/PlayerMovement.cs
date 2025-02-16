@@ -30,9 +30,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     float rotationSpeed = 360.0f;
 
-    [SerializeField]
-    float rotationAccel = 360.0f;
-
     InputHandler inputHandler;
 
     float previousRotationZ;
@@ -41,6 +38,8 @@ public class PlayerMovement : MonoBehaviour
 
     Vector3 plrVelocity;
 
+    Vector3 debugPoint;
+
     Vector3 previousPosition;
     List<ContactPoint2D> contactPoints;
 
@@ -48,6 +47,8 @@ public class PlayerMovement : MonoBehaviour
     bool debugHitDeadZone = false;
     void Start()
     {
+        //Time.timeScale = 0.1f;
+
         plrCollider = plrCollider ? plrCollider : GetComponent<CircleCollider2D>();
         rigidBody = rigidBody ? rigidBody : GetComponent<Rigidbody2D>();
 
@@ -63,6 +64,7 @@ public class PlayerMovement : MonoBehaviour
     {
         handleMovement();
         handleRotation();
+        //handleCollision();
     }
 
     private void handleMovement()
@@ -85,8 +87,9 @@ public class PlayerMovement : MonoBehaviour
                                                     Mathf.Min(plrVelocity.y - slowDownVector.y, 0f);
         }
 
-
-        transform.position += plrVelocity * Time.deltaTime;
+        previousPosition = transform.position;
+        rigidBody.linearVelocity = plrVelocity;
+        //transform.position += plrVelocity * Time.deltaTime;
     }
 
     private void handleRotation()
@@ -120,25 +123,25 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            if (num < 0)
-            {
-                moveTowardsVal = Mathf.Max(moveTowardsVal - rotationAccel * Time.deltaTime, -rotationSpeed);
-            }
-            else
-            {
-                moveTowardsVal = Mathf.Min(moveTowardsVal + rotationAccel * Time.deltaTime, rotationSpeed);
-            }
+            moveTowardsVal = rotationSpeed * Mathf.Sign(num) * MathHelper.BezierBuff(Mathf.Abs(num) / 180f);
 
-            //moveTowardsVal = Mathf.Clamp(moveTowardsVal + rotationAccel * (Mathf.Abs(num) + rotationAccel) * Time.deltaTime, -rotationSpeed, rotationSpeed);
         }
 
+        System.Reflection.Assembly assembly = System.Reflection.Assembly.GetAssembly(typeof(UnityEditor.SceneView));
+
+        /*System.Type type = assembly.GetType("UnityEditor.LogEntries");
+        System.Reflection.MethodInfo method = type.GetMethod("Clear");
+        method.Invoke(new object(), null);
+
+        Debug.Log(moveTowardsVal);
+        Debug.Log(Mathf.Abs(num) / 180f);
+        Debug.Log(MathHelper.BezierBuff(Mathf.Abs(num) / 180f));*/
 
         float clampedCurrentVal = Mathf.Repeat(transform.rotation.eulerAngles.z, 360f);
         if (clampedCurrentVal > 180f)
         {
             clampedCurrentVal -= 360f;
         }
-
 
         //if (moveTowardsVal > 0)
         //{
@@ -164,7 +167,6 @@ public class PlayerMovement : MonoBehaviour
 
         Debug.DrawLine(new Vector3(-1f, 0f), new Vector3(2f, 0f), valIsLessThanGoal ? Color.blue : Color.red);
         Debug.DrawLine(new Vector3(-1f, 1f), new Vector3(2f, 1f), newValIsLessThanGoal ? Color.blue : Color.red);
-        Debug.Log(goalRotationZ);
 
         transform.rotation = Quaternion.Euler(0f, 0f, didNotOverShoot ? newMoveTowardsVal : goalRotationZ);
         //}
@@ -175,4 +177,26 @@ public class PlayerMovement : MonoBehaviour
         previousRotationZ = goalRotationZ;
     }
 
+    private void handleCollision()
+    {
+        foreach (var item in Physics2D.CircleCastAll(transform.position, plrCollider.radius, Vector2.zero))
+        {
+            if (item.transform != transform)
+            {
+                Vector3 itemPointVec3 = (Vector3)item.point;
+
+                Vector3 closestPoint = item.collider.bounds.ClosestPoint((Vector3)item.point);
+
+                Vector3 moveToPoint = closestPoint - itemPointVec3;
+
+                transform.position = transform.position - new Vector3(0, moveToPoint.y);
+
+                debugPoint = item.point;
+
+                //transform.position = previousPosition;
+            }
+        }
+        Debug.DrawLine(debugPoint, debugPoint + new Vector3(1f,0f), Color.red);
+        Debug.DrawLine(transform.position, transform.position + new Vector3(1f, 0f), Color.red);
+    }
 }
