@@ -33,7 +33,7 @@ public class PlayerMovement : MonoBehaviour
     InputHandler inputHandler;
 
     float previousRotationZ;
-    float goalRotationZ;
+    float goalRot;
     float moveTowardsVal;
 
     Vector3 plrVelocity;
@@ -99,57 +99,31 @@ public class PlayerMovement : MonoBehaviour
             Vector3 mousePos = Input.mousePosition;
             mousePos = Camera.main.ScreenToWorldPoint(mousePos);
 
-            goalRotationZ = Mathf.Rad2Deg * Mathf.Atan2(mousePos.y - transform.position.y, mousePos.x - transform.position.x) + 90f;
+            goalRot = Mathf.Rad2Deg * Mathf.Atan2(mousePos.y - transform.position.y, mousePos.x - transform.position.x) + 90f;
         }
         else
         {
-            goalRotationZ = plrVelocity.magnitude == 0.0f ? goalRotationZ : 90f + Mathf.Rad2Deg * Mathf.Atan2(plrVelocity.y, plrVelocity.x);
+            goalRot = plrVelocity.magnitude == 0.0f ? goalRot : 90f + Mathf.Rad2Deg * Mathf.Atan2(plrVelocity.y, plrVelocity.x);
         }
 
-        float num = Mathf.Repeat(goalRotationZ - transform.rotation.eulerAngles.z, 360f);
-        goalRotationZ = Mathf.Repeat(goalRotationZ, 360f);
-        if (num > 180f)
-        {
-            num -= 360f;
-        }
+        goalRot = MathHelper.RotationTo180Scale(goalRot);
+        
+        float goalRotationDif = MathHelper.RotationTo180Scale(goalRot - transform.rotation.eulerAngles.z);
 
-        if (goalRotationZ > 180f)
-        {
-            goalRotationZ -= 360f;
-        }
+        float absGoalRotDif = Mathf.Abs(goalRotationDif);
+        moveTowardsVal = absGoalRotDif < 1f ? 0f :
+                            rotationSpeed * Mathf.Sign(goalRotationDif) * MathHelper.BezierBuffClamped(absGoalRotDif / 180f);
 
-        if (Mathf.Repeat(Mathf.Abs(num),360f) < 1f) {
-            moveTowardsVal = 0f;
-        }
-        else
-        {
-            moveTowardsVal = rotationSpeed * Mathf.Sign(num) * MathHelper.BezierBuff(Mathf.Abs(num) / 180f);
+        float clampedCurrentRot = MathHelper.RotationTo180Scale(transform.rotation.eulerAngles.z);
 
-        }
 
-        System.Reflection.Assembly assembly = System.Reflection.Assembly.GetAssembly(typeof(UnityEditor.SceneView));
-
-        /*System.Type type = assembly.GetType("UnityEditor.LogEntries");
-        System.Reflection.MethodInfo method = type.GetMethod("Clear");
-        method.Invoke(new object(), null);
-
-        Debug.Log(moveTowardsVal);
-        Debug.Log(Mathf.Abs(num) / 180f);
-        Debug.Log(MathHelper.BezierBuff(Mathf.Abs(num) / 180f));*/
-
-        float clampedCurrentVal = Mathf.Repeat(transform.rotation.eulerAngles.z, 360f);
-        if (clampedCurrentVal > 180f)
-        {
-            clampedCurrentVal -= 360f;
-        }
-
-        //if (moveTowardsVal > 0)
-        //{
-        bool valIsLessThanGoal = clampedCurrentVal < goalRotationZ;
+        bool valIsLessThanGoal = clampedCurrentRot < goalRot;
         bool hadToBeFlipped = false;
 
-        float newMoveTowardsVal = clampedCurrentVal + moveTowardsVal * Time.deltaTime;
+        float newMoveTowardsVal = clampedCurrentRot + moveTowardsVal * Time.deltaTime;
 
+        //Did overflipping happen if so change it so we are back in the [-180, 180] range
+        //P.S. yes technically we want it in [-180, 180) but we don't really care if 180 slips in
         if (newMoveTowardsVal > 180f)
         {
             hadToBeFlipped = true;
@@ -161,22 +135,26 @@ public class PlayerMovement : MonoBehaviour
             newMoveTowardsVal += 360f;
         }
 
-        bool newValIsLessThanGoal = newMoveTowardsVal < goalRotationZ;
+        bool newValIsLessThanGoal = newMoveTowardsVal < goalRot;
 
+
+        //Logic behind this is that if before its rotation being changed if the value was
+        //less than the goal angle than after being flipped if it did not overshoot or
+        //go from -180 to 180 then it should still be less. Ortherwise we know we overshot
+        //and we have missed the goal
         bool didNotOverShoot = (!hadToBeFlipped && valIsLessThanGoal == newValIsLessThanGoal) || (hadToBeFlipped && valIsLessThanGoal != newValIsLessThanGoal);
 
+        transform.rotation = Quaternion.Euler(0f, 0f, didNotOverShoot ? newMoveTowardsVal : goalRot);
+
+        previousRotationZ = goalRot;
+
+        //Some Debug lines
         Debug.DrawLine(new Vector3(-1f, 0f), new Vector3(2f, 0f), valIsLessThanGoal ? Color.blue : Color.red);
         Debug.DrawLine(new Vector3(-1f, 1f), new Vector3(2f, 1f), newValIsLessThanGoal ? Color.blue : Color.red);
-
-        transform.rotation = Quaternion.Euler(0f, 0f, didNotOverShoot ? newMoveTowardsVal : goalRotationZ);
-        //}
-
-        //Debug.Log(goalRotationZ);
-        //transform.rotation = Quaternion.Euler(0f, 0f, transform.rotation.eulerAngles.z + moveTowardsVal * Time.deltaTime);
-
-        previousRotationZ = goalRotationZ;
+        Debug.Log("PlayerMovement moveTowardsVal : " + moveTowardsVal);
     }
 
+    //Currently going unused might use it later though for custom collision effects
     private void handleCollision()
     {
         foreach (var item in Physics2D.CircleCastAll(transform.position, plrCollider.radius, Vector2.zero))

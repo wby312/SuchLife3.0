@@ -1,3 +1,4 @@
+using log4net.Util;
 using UnityEngine;
 
 
@@ -20,9 +21,22 @@ public class MathHelper
         return t * t * (3.0f - 2.0f * t);
     }
 
-    //Input a [0,1] at 0.5 will give you a value of 2 at the rest will smooth out to a value of 2
-    public static float BezierBuff(float t)
+    //Input an angle value. Returns a [-180,180) Value useful for comparisons
+    public static float RotationTo180Scale(float t)
+    {
+        float num = Mathf.Repeat(t, 360f);
+        return num > 180f ? num - 360f : num;
+    }
+
+
+    //Input a [0,1] at 0.5 will give you a value of 9 at the rest will smooth out to a value of 9
+    public static float BezierBuffClamped(float t)
     {
         return t <= 0.5 ? 32f * t * (1f - t) + 1f : 9;
+    }
+
+    public static float CubicBuff(float t)
+    {
+        return 30f * t * (1f - t) + 1.5f;
     }
 }
