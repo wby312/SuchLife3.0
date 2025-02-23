@@ -151,7 +151,7 @@ public class PlayerMovement : MonoBehaviour
         //Some Debug lines
         Debug.DrawLine(new Vector3(-1f, 0f), new Vector3(2f, 0f), valIsLessThanGoal ? Color.blue : Color.red);
         Debug.DrawLine(new Vector3(-1f, 1f), new Vector3(2f, 1f), newValIsLessThanGoal ? Color.blue : Color.red);
-        Debug.Log("PlayerMovement moveTowardsVal : " + moveTowardsVal);
+        //Debug.Log("PlayerMovement moveTowardsVal : " + moveTowardsVal);
     }
 
     //Currently going unused might use it later though for custom collision effects

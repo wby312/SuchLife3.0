@@ -5969,8 +5969,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parent: {fileID: 187161261}
-  angleMoveSpeed: 20
+  angleMoveSpeed: 950
   catchUpAngle: 30
+  deadStopVelocity: 60
+  closenessBuff: 90
 --- !u!1001 &1019278950
 PrefabInstance:
   m_ObjectHideFlags: 0

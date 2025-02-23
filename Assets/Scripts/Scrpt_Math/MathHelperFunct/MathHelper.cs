@@ -35,8 +35,13 @@ public class MathHelper
         return t <= 0.5 ? 32f * t * (1f - t) + 1f : 9;
     }
 
-    public static float CubicBuff(float t)
+    public static float BezierBuff(float t, float m, float n = 1)
     {
-        return 30f * t * (1f - t) + 1.5f;
+        return -4 * (m-n) * t * (1f - t) + n;
+    }
+
+    public static float CubicBuff(float t, float m, float n = 1)
+    {
+        return (n-m) *t*t*t + m;
     }
 }
