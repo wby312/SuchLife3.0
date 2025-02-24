@@ -96,7 +96,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (inputHandler.IsMouseEnabled == true)
         {
-            Vector3 mousePos = Input.mousePosition;
+            Vector3 mousePos = inputHandler.GetMousePos();
             mousePos = Camera.main.ScreenToWorldPoint(mousePos);
 
             goalRot = Mathf.Rad2Deg * Mathf.Atan2(mousePos.y - transform.position.y, mousePos.x - transform.position.x) + 90f;

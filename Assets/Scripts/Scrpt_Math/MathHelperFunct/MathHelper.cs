@@ -4,6 +4,9 @@ using UnityEngine;
 
 //https://stackoverflow.com/questions/13462001/ease-in-and-ease-out-animation-formula
 //Shout out to them for the Bezier in out blend
+
+//https://www.rorydriscoll.com/2016/03/07/frame-rate-independent-damping-using-lerp/
+//Shot out for the damp function!
 public class MathHelper
 {
     public static int ToIntPercent(float val)
@@ -44,4 +47,20 @@ public class MathHelper
     {
         return (n-m) *t*t*t + m;
     }
+
+    public static float DampAngle(float source, float target, float smoothing, float dt)
+    {
+        return Mathf.LerpAngle(source, target, 1 - Mathf.Pow(smoothing, dt));
+    }
+
+    public static float Damp(float source, float target, float smoothing, float dt)
+    {
+        return Mathf.Lerp(source, target, 1 - Mathf.Pow(smoothing, dt));
+    }
+
+    public static Vector3 DampVec3(Vector3 source, Vector3 target, float smoothing, float dt)
+    {
+        return Vector3.Lerp(source, target, 1 - Mathf.Pow(smoothing, dt));
+    }
+
 }
