@@ -49,10 +49,6 @@ namespace SuchLife_UI
         void Start()
         {
             LoadKeyBinds();
-            /*foreach (var savableInputAction in savableInputActions)
-            {
-                //savableInputAction.model.onClick.AddListener(savableInputAction.startRebinding);
-            }*/
         }
 
         //Save
@@ -149,28 +145,29 @@ namespace SuchLife_UI
                 wasEnabled = false;
             }
 
-            for (int i = 0; i < inputActionRef.action.bindings.Count; i++)
-            {
-                //Debug.Log($"Index {i} : {inputActionRef.action.bindings[i].path}");
-            }
-            for (int i = 0; i < inputActionRef.action.controls.Count; i++)
+            /* Just some test code incase you need to see what count of controls is
+             * for (int i = 0; i < inputActionRef.action.controls.Count; i++)
             {
                 Debug.Log($"Index {i} : {inputActionRef.action.controls[i].path}");
-            }
+            }*/
 
-            //PlayerPrefs.SetFloat(saveName, );
         }
 
 
         //Potentially reset idk tho
         public void reset()
         {
-            int bindingIndex = inputActionRef.action.GetBindingIndexForControl(inputActionRef.action.controls[0]);
-
+            int bindingIndex;
             if (isMultiAction)
-                inputActionRef.action.ApplyBindingOverride(multiActionIndex, inputActionRef.action.bindings[multiActionIndex].path);
+            {
+                bindingIndex = multiActionIndex;
+                inputActionRef.action.ApplyBindingOverride(multiActionIndex, inputActionRef.action.bindings[bindingIndex].path);
+            }
             else
+            {
+                bindingIndex = inputActionRef.action.GetBindingIndexForControl(inputActionRef.action.controls[0]);
                 inputActionRef.action.ApplyBindingOverride(inputActionRef.action.bindings[bindingIndex].path);
+            }
             
             string setText = InputControlPath.ToHumanReadableString(
                     inputActionRef.action.bindings[bindingIndex].effectivePath,
@@ -187,18 +184,23 @@ namespace SuchLife_UI
             //The inputActionRef.action.controls[0] gets the currently active InputControl
             int bindingIndex = inputActionRef.action.GetBindingIndexForControl(inputActionRef.action.controls[0]);
 
-            string effectivePath = inputActionRef.action.bindings[bindingIndex].effectivePath;
+            string effectivePath;
+            string path;
+
+            if (isMultiAction)
+            {
+                effectivePath = inputActionRef.action.bindings[multiActionIndex].effectivePath;
+                path = inputActionRef.action.bindings[multiActionIndex].path;
+            }
+            else
+            {
+                effectivePath = inputActionRef.action.bindings[bindingIndex].effectivePath;
+                path = inputActionRef.action.bindings[bindingIndex].path;
+            }
 
             string setText = InputControlPath.ToHumanReadableString(
                 effectivePath,
                 InputControlPath.HumanReadableStringOptions.OmitDevice);
-            Debug.Log(setText);
-
-            string path;
-            if (isMultiAction)
-                path = inputActionRef.action.bindings[multiActionIndex].path;
-            else
-                path = inputActionRef.action.bindings[bindingIndex].path;
 
             //If effective path matches actually path then that means the effective path
             //aka the override equals the actual path or the base value
