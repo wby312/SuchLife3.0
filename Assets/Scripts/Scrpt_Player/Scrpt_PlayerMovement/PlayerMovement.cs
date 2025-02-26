@@ -43,8 +43,6 @@ public class PlayerMovement : MonoBehaviour
     Vector3 previousPosition;
     List<ContactPoint2D> contactPoints;
 
-    bool isDebugOn = false;
-    bool debugHitDeadZone = false;
     void Start()
     {
         //Time.timeScale = 0.1f;
@@ -57,6 +55,11 @@ public class PlayerMovement : MonoBehaviour
         previousPosition = transform.position;
 
         inputHandler = InputHandler.Instance;
+    }
+
+    private void FixedUpdate()
+    {
+        EventManager.SetPlayerAnimSpeedTrue(plrVelocity.magnitude);
     }
 
     // Update is called once per frame
