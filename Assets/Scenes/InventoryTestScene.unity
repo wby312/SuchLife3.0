@@ -1336,6 +1336,7 @@ GameObject:
   - component: {fileID: 187161266}
   - component: {fileID: 187161265}
   - component: {fileID: 187161267}
+  - component: {fileID: 187161268}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -6371,11 +6372,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventory: []
   gameUI: {fileID: 558598616}
-  inventoryPanel: {fileID: 626819794}
+  hotbarPanel: {fileID: 626819794}
   fullInventory: {fileID: 354066064}
   hotbar: []
   fullInv: []
   selectedItem: 0
+  empty: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+--- !u!114 &187161268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 187161259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fdef3e1ffdf885468b9e93538a75aa7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &195976129
 GameObject:
   m_ObjectHideFlags: 0
@@ -6961,7 +6975,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_StartCorner: 2
+  m_StartCorner: 0
   m_StartAxis: 1
   m_CellSize: {x: 100, y: 100}
   m_Spacing: {x: 125, y: 125}
@@ -7479,7 +7493,7 @@ GameObject:
   - component: {fileID: 626819795}
   - component: {fileID: 626819796}
   m_Layer: 5
-  m_Name: InventoryPanel
+  m_Name: HotbarPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

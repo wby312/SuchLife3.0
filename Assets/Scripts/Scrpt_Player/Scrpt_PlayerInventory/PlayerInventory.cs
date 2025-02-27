@@ -106,6 +106,8 @@ public class PlayerInventory : MonoBehaviour
                 gameUI.SetActive(isActive); 
                 
 
+                this.GetComponent<helperFunctions>().togglePause();
+
             }
 
         }
