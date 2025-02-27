@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class Item : ScriptableObject
 {
     public string itemName; 
-    public Image icon; 
+    public Sprite icon; 
 
     [TextArea(3, 10)]
     public string[] information; 
