@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Collections;
+using TMPro;
 
 
 public class PlayerInventory : MonoBehaviour
@@ -43,12 +44,19 @@ public class PlayerInventory : MonoBehaviour
         for (int i = 0; i < hotbarPanel.transform.childCount; i++)
             {
                 hotbar.Add(hotbarPanel.transform.GetChild(i).gameObject);
+
+    
+
             }    
+
+           // Debug.Log(hotbar.Count);
 
         //Do the same for FullInventory and fullInv
         for (int i = 0; i < fullInventory.transform.childCount; i++)
             {
                 fullInv.Add(fullInventory.transform.GetChild(i).gameObject);
+            
+
             }   
 
         fullInventory.SetActive(false);
@@ -57,6 +65,38 @@ public class PlayerInventory : MonoBehaviour
             InventorySlot slot = new InventorySlot(); 
             slot.isEmpty = true;
             inventory.Add(slot); 
+        }
+
+
+        //Making all the quantity texts blank for both the hotbar and the fullinv.
+
+        foreach (GameObject panel in hotbar)
+        {
+            if (panel.transform.childCount > 0) // Ensure it has a child
+            {
+                Transform textChild = panel.transform.GetChild(0); // Get the first child
+                TextMeshProUGUI tmp = textChild.GetComponent<TextMeshProUGUI>();
+
+                tmp.text = ""; 
+                tmp.color = new Color32(255,255,225,100);
+
+            }
+        
+        }
+
+        foreach (GameObject panel in fullInv)
+        {
+            if (panel.transform.childCount > 0) // Ensure it has a child
+            {
+                Transform textChild = panel.transform.GetChild(0); // Get the first child
+                TextMeshProUGUI tmp = textChild.GetComponent<TextMeshProUGUI>();
+
+                tmp.text = ""; 
+                tmp.color = new Color32(255,255,225,100);
+
+
+            }
+        
         }
 
 
@@ -120,6 +160,7 @@ public class PlayerInventory : MonoBehaviour
     public void AddItem(Item item){
         Debug.Log("Adding Item...");
 
+        int isInHotbar = 0;
         foreach (InventorySlot slot in inventory){
 
             if(slot.item == item){
@@ -128,14 +169,32 @@ public class PlayerInventory : MonoBehaviour
                 //Item already exists in inventory, therefore, we increment its amount.
                 slot.quantity++; 
 
-        
+                 if(isInHotbar < 10){
+                    //Change color to teal just for debugging, so we know it's working.
+                   //hotbar[isInHotbar].GetComponent<Image>().color = new Color32(50,255,225,100);
+                  //hotbar[isInHotbar].GetComponent<Image>().sprite = slot.item.icon; 
+
+                   Transform textChild = hotbar[isInHotbar].transform.GetChild(0); // Get the first child
+                   TextMeshProUGUI tmp = textChild.GetComponent<TextMeshProUGUI>();
+                   tmp.text = slot.quantity.ToString(); 
+
+                }
+
+               // fullInv[isInHotbar].GetComponent<Image>().color = new Color32(50,255,225,100);
+                  fullInv[isInHotbar].GetComponent<Image>().sprite = slot.item.icon; 
+
+                   Transform textChild_inv = fullInv[isInHotbar].transform.GetChild(0); // Get the first child
+                   TextMeshProUGUI tmp_inv = textChild_inv.GetComponent<TextMeshProUGUI>();
+                   tmp_inv.text = slot.quantity.ToString(); 
+
+
+    
                 return; 
             }
+            isInHotbar++;
         }
 
-
-
-        int isInHotbar = 0;
+        isInHotbar = 0;
         
         //If we go through entire loop and havent found a match, we simply add it to next free slot.
          foreach (InventorySlot slot in inventory){
@@ -176,7 +235,7 @@ public class PlayerInventory : MonoBehaviour
             if(slot.item == item){
                 Debug.Log("Removing Item");
 
-                slot.quantity--; 
+                slot.quantity--;
 
                 if(slot.quantity == 0){
                      Debug.Log("0 quantity, emptying slot.");
@@ -197,6 +256,33 @@ public class PlayerInventory : MonoBehaviour
                     slot.isEmpty = true; 
                     slot.item = null;
                 }
+
+                if(slot.quantity <= 1){
+
+                    //remove number if 1 . 
+                   Transform textChild = hotbar[isInHotbar].transform.GetChild(0); // Get the first child
+                   TextMeshProUGUI tmp = textChild.GetComponent<TextMeshProUGUI>();
+                   tmp.text = "";
+
+                    Transform textChild_inv = fullInv[isInHotbar].transform.GetChild(0); // Get the first child
+                   TextMeshProUGUI tmp_inv = textChild_inv.GetComponent<TextMeshProUGUI>();
+                   tmp_inv.text = "";
+
+                }
+                else{
+                      //just lower number if above one. 
+                   Transform textChild = hotbar[isInHotbar].transform.GetChild(0); // Get the first child
+                   TextMeshProUGUI tmp = textChild.GetComponent<TextMeshProUGUI>();
+                   tmp.text = slot.quantity.ToString(); 
+
+                    Transform textChild_inv = fullInv[isInHotbar].transform.GetChild(0); // Get the first child
+                   TextMeshProUGUI tmp_inv = textChild_inv.GetComponent<TextMeshProUGUI>();
+                   tmp_inv.text = slot.quantity.ToString(); 
+
+                }
+
+
+                
                 return; 
             }
             isInHotbar++;
