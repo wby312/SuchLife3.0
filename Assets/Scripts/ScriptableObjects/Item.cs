@@ -14,4 +14,5 @@ public class Item : ScriptableObject
     [TextArea(3, 10)]
     public string[] information; 
 
+
 }

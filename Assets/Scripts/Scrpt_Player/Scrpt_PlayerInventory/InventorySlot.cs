@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InventorySlot : MonoBehaviour
+[System.Serializable] 
+public class InventorySlot 
 {
     public int quantity;
     public bool isEmpty; 
